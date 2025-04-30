@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Random Image</title>
+</head>
+<body>
+    <p>Redirecting to random image...</p>
+    <script>
+        fetch('../images.json')
+            .then(response => response.json())
+            .then(images => {
+                const randomIndex = Math.floor(Math.random() * images.length);
+                const randomImage = images[randomIndex];
+                const result = { id: randomImage };
+
+                // Display the result as JSON
+                document.body.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+
+                // You can uncomment the following line to redirect to the actual image
+                // window.location.href = '../images/' + randomImage + '.html';
+            })
+            .catch(error => {
+                document.body.innerHTML = '<p>Error: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

@@ -9,12 +9,37 @@ A simple web application that displays images from the `/wp` folder as fullscree
 - Provides navigation controls (previous, next, random)
 - Keyboard shortcuts (left arrow, right arrow, 'r' for random)
 - API endpoints to get images by ID or randomly
+- Works on GitHub Pages with static API endpoints
 
 ## API Endpoints
 
-- `/api/images` - Get all image IDs
-- `/api/images/:id` - Get a specific image by ID
-- `/api/random` - Get a random image
+The application provides the following API endpoints that work both locally and on GitHub Pages:
+
+- `/api/images.json` - Get all image IDs
+- `/api/images/{id}.json` - Get information about a specific image by ID
+- `/api/images/{id}.html` - Redirect to the actual image file
+- `/api/random/index.html` - Get a random image ID
+
+API documentation is available at `/api/index.html` when the application is running.
+
+### Example Usage
+
+```javascript
+// Get all image IDs
+fetch('/api/images.json')
+  .then(response => response.json())
+  .then(images => console.log(images));
+
+// Get a specific image by ID
+fetch('/api/images/image1.jpg.json')
+  .then(response => response.json())
+  .then(imageData => console.log(imageData));
+
+// Get a random image
+fetch('/api/random/index.html')
+  .then(response => response.json())
+  .then(randomImage => console.log(randomImage));
+```
 
 ## Local Development
 
@@ -23,7 +48,7 @@ A simple web application that displays images from the `/wp` folder as fullscree
    npm install
    ```
 
-2. Generate image data:
+2. Generate image data and API endpoints:
    ```
    npm run generate-data
    ```
@@ -39,7 +64,7 @@ A simple web application that displays images from the `/wp` folder as fullscree
 
 This application is designed to work with GitHub Pages. To deploy:
 
-1. Generate the image data:
+1. Generate the image data and API endpoints:
    ```
    npm run generate-data
    ```

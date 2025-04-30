@@ -9,28 +9,74 @@ document.addEventListener('DOMContentLoaded', () => {
     // State variables
     let images = [];
     let currentIndex = 0;
+    let imageCache = {}; // Cache for image data
 
-    // For GitHub Pages, we'll use a JSON file with image data
-    async function fetchImageData() {
+    // API endpoints
+    const API = {
+        getAllImages: 'api/images.json',
+        getImageById: (id) => `api/images/${id}.json`,
+        getRandomImage: 'api/random/index.json'
+    };
+
+    // Fetch all image IDs
+    async function fetchImageIds() {
         try {
-            const response = await fetch('data/images.json');
+            const response = await fetch(API.getAllImages);
             if (!response.ok) {
-                throw new Error('Failed to fetch image data');
+                throw new Error('Failed to fetch image IDs');
             }
-            const data = await response.json();
-            images = data;
-            if (images.length > 0) {
-                // Start with a random image
-                currentIndex = Math.floor(Math.random() * images.length);
-                setBackgroundImage(images[currentIndex]);
-            }
+            const imageIds = await response.json();
+            return imageIds;
         } catch (error) {
-            console.error('Error fetching image data:', error);
+            console.error('Error fetching image IDs:', error);
+            return [];
+        }
+    }
+
+    // Fetch image data by ID
+    async function fetchImageData(imageId) {
+        // Check if image data is in cache
+        if (imageCache[imageId]) {
+            return imageCache[imageId];
+        }
+
+        try {
+            const response = await fetch(API.getImageById(imageId));
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image data for ID: ${imageId}`);
+            }
+            const imageData = await response.json();
+
+            // Cache the image data
+            imageCache[imageId] = imageData;
+
+            return imageData;
+        } catch (error) {
+            console.error(`Error fetching image data for ID: ${imageId}`, error);
+            return null;
+        }
+    }
+
+    // Fetch a random image
+    async function fetchRandomImage() {
+        try {
+            // For GitHub Pages, we'll just select a random image from our array
+            if (images.length > 0) {
+                const randomIndex = Math.floor(Math.random() * images.length);
+                return images[randomIndex];
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching random image:', error);
+            return null;
         }
     }
 
     // Set background image
-    function setBackgroundImage(imageData) {
+    async function setBackgroundImage(imageId) {
+        const imageData = await fetchImageData(imageId);
+        if (!imageData) return;
+
         // Create a new image to preload
         const img = new Image();
         img.onload = () => {
@@ -41,27 +87,43 @@ document.addEventListener('DOMContentLoaded', () => {
         img.src = imageData.path;
     }
 
+    // Initialize the application
+    async function initialize() {
+        // Fetch all image IDs
+        images = await fetchImageIds();
+
+        if (images.length > 0) {
+            // Start with a random image
+            currentIndex = Math.floor(Math.random() * images.length);
+            await setBackgroundImage(images[currentIndex]);
+        }
+    }
+
     // Event handlers
-    prevBtn.addEventListener('click', () => {
+    prevBtn.addEventListener('click', async () => {
         if (images.length === 0) return;
         currentIndex = (currentIndex - 1 + images.length) % images.length;
-        setBackgroundImage(images[currentIndex]);
+        await setBackgroundImage(images[currentIndex]);
     });
 
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', async () => {
         if (images.length === 0) return;
         currentIndex = (currentIndex + 1) % images.length;
-        setBackgroundImage(images[currentIndex]);
+        await setBackgroundImage(images[currentIndex]);
     });
 
-    randomBtn.addEventListener('click', () => {
+    randomBtn.addEventListener('click', async () => {
         if (images.length === 0) return;
-        currentIndex = Math.floor(Math.random() * images.length);
-        setBackgroundImage(images[currentIndex]);
+        const randomImageId = await fetchRandomImage();
+        if (randomImageId) {
+            // Find the index of this image in our array
+            const index = images.indexOf(randomImageId);
+            if (index !== -1) {
+                currentIndex = index;
+            }
+            await setBackgroundImage(randomImageId);
+        }
     });
-
-    // Initialize
-    fetchImageData();
 
     // Add keyboard navigation
     document.addEventListener('keydown', (e) => {
@@ -73,4 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             randomBtn.click();
         }
     });
+
+    // Initialize the application
+    initialize();
 });
