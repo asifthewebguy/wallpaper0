@@ -78,6 +78,19 @@ This application is designed to work with GitHub Pages. To deploy:
 
 4. Enable GitHub Pages in your repository settings
 
+## Automatic API Generation
+
+This repository includes a GitHub Action that automatically generates the API files whenever new images are added to the `/wp` folder. The workflow:
+
+1. Triggers when changes are pushed to the `wp` directory
+2. Runs the `generate-data` script to create all necessary API files
+3. Updates the `index.html` file
+4. Commits and pushes the changes back to the repository
+
+This ensures that the API always stays in sync with the images in the `/wp` folder without requiring manual intervention.
+
+You can also manually trigger this workflow from the "Actions" tab in the GitHub repository.
+
 ## License
 
 MIT

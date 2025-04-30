@@ -1,26 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-// Create data directory if it doesn't exist
+// Create directories if they don't exist
 const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-}
-
-// Create API directories if they don't exist
 const apiDir = path.join(__dirname, 'api');
 const apiImagesDir = path.join(apiDir, 'images');
 const apiRandomDir = path.join(apiDir, 'random');
 
-if (!fs.existsSync(apiDir)) {
-    fs.mkdirSync(apiDir, { recursive: true });
-}
-if (!fs.existsSync(apiImagesDir)) {
-    fs.mkdirSync(apiImagesDir, { recursive: true });
-}
-if (!fs.existsSync(apiRandomDir)) {
-    fs.mkdirSync(apiRandomDir, { recursive: true });
-}
+// Use recursive option to create parent directories if needed
+fs.mkdirSync(dataDir, { recursive: true });
+fs.mkdirSync(apiImagesDir, { recursive: true });
+fs.mkdirSync(apiRandomDir, { recursive: true });
 
 // Read the wp directory
 const wpDir = path.join(__dirname, 'wp');
