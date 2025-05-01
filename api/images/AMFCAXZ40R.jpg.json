@@ -1,5 +1,7 @@
 {
   "id": "AMFCAXZ40R.jpg",
   "path": "wp/AMFCAXZ40R.jpg",
-  "type": "jpg"
+  "type": "jpg",
+  "source": "local",
+  "localPath": "wp/AMFCAXZ40R.jpg"
 }

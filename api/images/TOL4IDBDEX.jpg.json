@@ -1,5 +1,7 @@
 {
   "id": "TOL4IDBDEX.jpg",
   "path": "wp/TOL4IDBDEX.jpg",
-  "type": "jpg"
+  "type": "jpg",
+  "source": "local",
+  "localPath": "wp/TOL4IDBDEX.jpg"
 }

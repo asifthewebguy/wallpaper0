@@ -1,5 +1,7 @@
 {
   "id": "MLTGC51OLW.jpg",
   "path": "wp/MLTGC51OLW.jpg",
-  "type": "jpg"
+  "type": "jpg",
+  "source": "local",
+  "localPath": "wp/MLTGC51OLW.jpg"
 }

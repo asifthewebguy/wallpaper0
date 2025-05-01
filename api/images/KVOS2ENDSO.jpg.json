@@ -1,5 +1,7 @@
 {
   "id": "KVOS2ENDSO.jpg",
   "path": "wp/KVOS2ENDSO.jpg",
-  "type": "jpg"
+  "type": "jpg",
+  "source": "local",
+  "localPath": "wp/KVOS2ENDSO.jpg"
 }
