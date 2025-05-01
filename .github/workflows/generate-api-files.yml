@@ -4,7 +4,9 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'wp/**'  # Only trigger when files in the wp directory change
+      - 'wp/**'  # Trigger when files in the wp directory change
+      - 'google-drive-mapping.json'  # Trigger when Google Drive mapping changes
+      - 'config.js'  # Trigger when configuration changes
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
@@ -39,6 +41,17 @@ jobs:
       run: |
         git config --global user.name 'GitHub Actions Bot'
         git config --global user.email 'actions@github.com'
-        git add api/ data/ index.html
-        git diff --quiet && git diff --staged --quiet || git commit -m "Auto-generate API files from new images"
+        git add api/ data/ index.html css/
+
+        # Determine commit message based on what triggered the workflow
+        COMMIT_MSG="Auto-generate API files"
+        if git diff --name-only HEAD | grep -q "google-drive-mapping.json"; then
+          COMMIT_MSG="$COMMIT_MSG (Google Drive mapping updated)"
+        elif git diff --name-only HEAD | grep -q "wp/"; then
+          COMMIT_MSG="$COMMIT_MSG (new images added)"
+        elif git diff --name-only HEAD | grep -q "config.js"; then
+          COMMIT_MSG="$COMMIT_MSG (configuration updated)"
+        fi
+
+        git diff --quiet && git diff --staged --quiet || git commit -m "$COMMIT_MSG"
         git push

@@ -1,6 +1,39 @@
 const fs = require('fs');
 const path = require('path');
 
+// Load configuration
+let config;
+try {
+    config = require('./config');
+    console.log('Loaded configuration from config.js');
+} catch (error) {
+    console.warn('Could not load config.js, using default settings');
+    config = {
+        useGoogleDrive: true,
+        fallbackToLocal: true,
+        googleDriveBaseUrl: 'https://drive.google.com/uc?export=view&id=',
+        localImagePath: 'wp/'
+    };
+}
+
+// Load Google Drive mapping if it exists
+let driveMapping = {};
+const driveMappingPath = path.join(__dirname, 'google-drive-mapping.json');
+if (fs.existsSync(driveMappingPath)) {
+    try {
+        driveMapping = JSON.parse(fs.readFileSync(driveMappingPath, 'utf8'));
+        // Remove README and example entries
+        delete driveMapping.README;
+        delete driveMapping["EXAMPLE.jpg"];
+        delete driveMapping["EXAMPLE2.png"];
+
+        const mappingCount = Object.keys(driveMapping).length;
+        console.log(`Loaded ${mappingCount} Google Drive mappings`);
+    } catch (error) {
+        console.error('Error loading Google Drive mapping:', error);
+    }
+}
+
 // Create directories if they don't exist
 const dataDir = path.join(__dirname, 'data');
 const apiDir = path.join(__dirname, 'api');
@@ -23,10 +56,29 @@ const imageFiles = files.filter(file => {
 });
 
 const imageData = imageFiles.map(file => {
+    const fileName = path.basename(file);
+    const driveId = driveMapping[fileName];
+    const fileType = path.extname(file).toLowerCase().substring(1);
+
+    // Determine the image path based on Google Drive availability
+    let imagePath, imageSource;
+
+    if (config.useGoogleDrive && driveId) {
+        // Use Google Drive URL
+        imagePath = `${config.googleDriveBaseUrl}${driveId}`;
+        imageSource = 'google-drive';
+    } else {
+        // Use local path
+        imagePath = `${config.localImagePath}${file}`;
+        imageSource = 'local';
+    }
+
     return {
-        id: path.basename(file),
-        path: `wp/${file}`,
-        type: path.extname(file).toLowerCase().substring(1)
+        id: fileName,
+        path: imagePath,
+        type: fileType,
+        source: imageSource,
+        localPath: `${config.localImagePath}${file}` // Always include local path for fallback
     };
 });
 
@@ -50,9 +102,30 @@ imageData.forEach(image => {
     );
 
     // Create HTML files that redirect to the actual images
-    fs.writeFileSync(
-        path.join(apiImagesDir, `${image.id}.html`),
-        `<!DOCTYPE html>
+    // For Google Drive images, we need a different approach since the URL is absolute
+    const redirectContent = image.source === 'google-drive'
+        ? `<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="0;url=${image.path}">
+</head>
+<body>
+    <p>Redirecting to image on Google Drive...</p>
+    <script>
+        // Try Google Drive first
+        window.location.href = "${image.path}";
+
+        // If Google Drive fails, fallback to local (handled by JS in the actual app)
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName.toLowerCase() === 'img') {
+                console.warn('Google Drive image failed to load, falling back to local');
+                window.location.href = "../../${image.localPath}";
+            }
+        }, true);
+    </script>
+</body>
+</html>`
+        : `<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="refresh" content="0;url=../../${image.path}">
@@ -63,7 +136,11 @@ imageData.forEach(image => {
         window.location.href = "../../${image.path}";
     </script>
 </body>
-</html>`
+</html>`;
+
+    fs.writeFileSync(
+        path.join(apiImagesDir, `${image.id}.html`),
+        redirectContent
     );
 });
 

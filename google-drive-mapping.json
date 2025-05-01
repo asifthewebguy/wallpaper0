@@ -1,0 +1,5 @@
+{
+  "README": "This file maps local image filenames to Google Drive file IDs. Replace the example values with your actual Google Drive file IDs.",
+  "EXAMPLE.jpg": "REPLACE_WITH_GOOGLE_DRIVE_FILE_ID",
+  "EXAMPLE2.png": "REPLACE_WITH_GOOGLE_DRIVE_FILE_ID"
+}

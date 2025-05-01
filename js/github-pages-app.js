@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Load configuration if available
+    const appConfig = window.appConfig || {
+        useGoogleDrive: true,
+        fallbackToLocal: true,
+        preloadAdjacentImages: true,
+        cacheImages: true,
+        showImageSource: true,
+        transitionDuration: 1000,
+        maxRetryAttempts: 3,
+        retryDelay: 1000
+    };
+
     // DOM elements
     const backgroundContainer = document.getElementById('background-container');
     const prevBtn = document.getElementById('prev-btn');
@@ -6,10 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomBtn = document.getElementById('random-btn');
     const imageIdSpan = document.getElementById('image-id');
 
+    // Add source indicator if configured
+    let imageSourceSpan;
+    if (appConfig.showImageSource) {
+        imageSourceSpan = document.createElement('span');
+        imageSourceSpan.id = 'image-source';
+        imageSourceSpan.className = 'source-indicator';
+        document.querySelector('.info-panel').appendChild(imageSourceSpan);
+    }
+
     // State variables
     let images = [];
     let currentIndex = 0;
     let imageCache = {}; // Cache for image data
+    let loadingImage = false; // Flag to prevent multiple simultaneous loads
+    let retryCount = {}; // Track retry attempts for each image
 
     // API endpoints
     const API = {
@@ -72,19 +95,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Set background image
+    // Set background image with fallback mechanism
     async function setBackgroundImage(imageId) {
-        const imageData = await fetchImageData(imageId);
-        if (!imageData) return;
+        // Prevent multiple simultaneous image loads
+        if (loadingImage) return;
+        loadingImage = true;
 
-        // Create a new image to preload
-        const img = new Image();
-        img.onload = () => {
-            // Once loaded, set as background
-            backgroundContainer.style.backgroundImage = `url(${imageData.path})`;
-            imageIdSpan.textContent = imageData.id;
-        };
-        img.src = imageData.path;
+        // Reset retry count for this image
+        retryCount[imageId] = 0;
+
+        // Show loading state
+        backgroundContainer.classList.add('loading');
+
+        const imageData = await fetchImageData(imageId);
+        if (!imageData) {
+            backgroundContainer.classList.remove('loading');
+            backgroundContainer.classList.add('error');
+            imageIdSpan.textContent = `Error: Could not load image data for ${imageId}`;
+            loadingImage = false;
+            return;
+        }
+
+        // Function to try loading the image
+        function tryLoadImage(src, isRetry = false, isFallback = false) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+
+                img.onload = () => {
+                    // Successfully loaded the image
+                    backgroundContainer.style.backgroundImage = `url(${src})`;
+                    backgroundContainer.classList.remove('loading', 'error');
+                    imageIdSpan.textContent = imageData.id;
+
+                    // Show image source if configured
+                    if (appConfig.showImageSource && imageSourceSpan) {
+                        const sourceText = isFallback ?
+                            `Source: Local (Fallback)` :
+                            `Source: ${imageData.source === 'google-drive' ? 'Google Drive' : 'Local'}`;
+                        imageSourceSpan.textContent = sourceText;
+                        imageSourceSpan.className = `source-indicator ${isFallback ? 'fallback' : imageData.source}`;
+                    }
+
+                    resolve(true);
+                };
+
+                img.onerror = () => {
+                    console.warn(`Failed to load image from ${src}${isRetry ? ' (retry attempt)' : ''}`);
+                    reject(new Error(`Failed to load image from ${isRetry ? 'retry' : 'primary'} source`));
+                };
+
+                img.src = src;
+            });
+        }
+
+        // Try to load the image with fallback and retry logic
+        try {
+            // First try the primary source (Google Drive or local)
+            await tryLoadImage(imageData.path);
+        } catch (error) {
+            // If primary source fails and we have a fallback option
+            if (appConfig.fallbackToLocal && imageData.source === 'google-drive' && imageData.localPath) {
+                try {
+                    console.log(`Trying fallback to local for ${imageId}`);
+                    await tryLoadImage(imageData.localPath, false, true);
+                } catch (fallbackError) {
+                    // Both primary and fallback failed
+                    console.error(`Both primary and fallback sources failed for ${imageId}`);
+                    backgroundContainer.classList.remove('loading');
+                    backgroundContainer.classList.add('error');
+                    imageIdSpan.textContent = `Error loading: ${imageData.id}`;
+                }
+            } else {
+                // No fallback available or fallback also failed
+                backgroundContainer.classList.remove('loading');
+                backgroundContainer.classList.add('error');
+                imageIdSpan.textContent = `Error loading: ${imageData.id}`;
+            }
+        } finally {
+            loadingImage = false;
+        }
+
+        // Preload adjacent images if configured
+        if (appConfig.preloadAdjacentImages && images.length > 1) {
+            const nextIndex = (currentIndex + 1) % images.length;
+            const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
+            // Preload next and previous images in the background
+            fetchImageData(images[nextIndex]);
+            fetchImageData(images[prevIndex]);
+        }
     }
 
     // Initialize the application

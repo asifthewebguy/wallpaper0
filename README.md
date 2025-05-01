@@ -10,6 +10,9 @@ A simple web application that displays images from the `/wp` folder as fullscree
 - Keyboard shortcuts (left arrow, right arrow, 'r' for random)
 - API endpoints to get images by ID or randomly
 - Works on GitHub Pages with static API endpoints
+- Google Drive integration for image hosting
+- Fallback to local images if Google Drive is unavailable
+- Loading indicators and error handling
 
 ## API Endpoints
 
@@ -78,16 +81,53 @@ This application is designed to work with GitHub Pages. To deploy:
 
 4. Enable GitHub Pages in your repository settings
 
+## Google Drive Integration
+
+This application supports hosting images on Google Drive to save GitHub repository space. The integration:
+
+1. Maps local image filenames to Google Drive file IDs
+2. Automatically uses Google Drive URLs when available
+3. Falls back to local images if Google Drive is unavailable
+4. Shows loading indicators and error messages
+5. Displays the image source (Google Drive or local)
+
+### Setting Up Google Drive Integration
+
+1. Create a `google-drive-mapping.json` file that maps local filenames to Google Drive file IDs:
+   ```json
+   {
+     "image1.jpg": "GOOGLE_DRIVE_FILE_ID_1",
+     "image2.png": "GOOGLE_DRIVE_FILE_ID_2"
+   }
+   ```
+
+2. Make sure your Google Drive images are publicly accessible (anyone with the link can view)
+
+3. Use the included `upload-to-drive.js` utility to upload images and generate the mapping file:
+   ```
+   npm install googleapis readline-sync fs-extra
+   node upload-to-drive.js
+   ```
+
+4. Configure the integration in `config.js`:
+   ```javascript
+   const config = {
+     useGoogleDrive: true,  // Set to false to disable Google Drive integration
+     fallbackToLocal: true, // Try local files if Google Drive fails
+     // ... other settings
+   };
+   ```
+
 ## Automatic API Generation
 
-This repository includes a GitHub Action that automatically generates the API files whenever new images are added to the `/wp` folder. The workflow:
+This repository includes a GitHub Action that automatically generates the API files. The workflow:
 
-1. Triggers when changes are pushed to the `wp` directory
+1. Triggers when changes are pushed to the `wp` directory, `google-drive-mapping.json`, or `config.js`
 2. Runs the `generate-data` script to create all necessary API files
 3. Updates the `index.html` file
 4. Commits and pushes the changes back to the repository
 
-This ensures that the API always stays in sync with the images in the `/wp` folder without requiring manual intervention.
+This ensures that the API always stays in sync with your images without requiring manual intervention.
 
 You can also manually trigger this workflow from the "Actions" tab in the GitHub repository.
 

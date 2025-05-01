@@ -57,4 +57,72 @@ body, html {
     padding: 10px;
     border-radius: 5px;
     z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Loading state */
+.fullscreen-bg.loading {
+    position: relative;
+}
+
+.fullscreen-bg.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    z-index: 100;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Error state */
+.fullscreen-bg.error {
+    background-color: #333;
+    position: relative;
+}
+
+.fullscreen-bg.error::after {
+    content: "⚠️ Image failed to load";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    z-index: 100;
+}
+
+/* Source indicators */
+.source-indicator {
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+.source-indicator.google-drive {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.source-indicator.local {
+    background-color: #34a853;
+    color: white;
+}
+
+.source-indicator.fallback {
+    background-color: #fbbc05;
+    color: black;
 }
