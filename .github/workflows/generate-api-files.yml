@@ -42,8 +42,7 @@ jobs:
         # Copy index file
         cp github-pages-index.html index.html
 
-        # Copy config file
-        cp config.js config.js
+        # No need to copy config.js as it's already in the root directory
 
         # Create js directory
         mkdir -p js
