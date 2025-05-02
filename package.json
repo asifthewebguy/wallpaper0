@@ -9,6 +9,7 @@
     "build": "npm run generate-data && copy github-pages-index.html index.html",
     "upload-to-drive": "node upload-to-drive.js",
     "check-mapping": "node check-mapping.js",
+    "check-mapping-file": "node check-mapping-file.js",
     "test-drive": "node test-drive-integration.js",
     "test-credentials": "node test-credentials.js",
     "test": "echo \"Error: no test specified\" && exit 1"

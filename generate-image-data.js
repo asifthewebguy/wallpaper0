@@ -26,12 +26,24 @@ if (fs.existsSync(driveMappingPath)) {
         delete driveMapping.README;
         delete driveMapping["EXAMPLE.jpg"];
         delete driveMapping["EXAMPLE2.png"];
+        delete driveMapping["NOTE"];
 
         const mappingCount = Object.keys(driveMapping).length;
         console.log(`Loaded ${mappingCount} Google Drive mappings`);
+
+        // If there are no valid mappings, disable Google Drive integration
+        if (mappingCount === 0) {
+            console.log('No valid Google Drive mappings found, disabling Google Drive integration');
+            config.useGoogleDrive = false;
+        }
     } catch (error) {
         console.error('Error loading Google Drive mapping:', error);
+        // Disable Google Drive integration on error
+        config.useGoogleDrive = false;
     }
+} else {
+    console.log('No Google Drive mapping file found, disabling Google Drive integration');
+    config.useGoogleDrive = false;
 }
 
 // Create directories if they don't exist
