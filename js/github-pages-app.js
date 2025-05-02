@@ -121,30 +121,58 @@ document.addEventListener('DOMContentLoaded', () => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
 
-                img.onload = () => {
-                    // Successfully loaded the image
-                    backgroundContainer.style.backgroundImage = `url(${src})`;
-                    backgroundContainer.classList.remove('loading', 'error');
-                    imageIdSpan.textContent = imageData.id;
+                // For Google Drive images, we need to handle CORS differently
+                if (src.includes('drive.google.com')) {
+                    // Use our custom Google Drive proxy
+                    console.log(`Using GoogleDriveProxy for image: ${src}`);
 
-                    // Show image source if configured
-                    if (appConfig.showImageSource && imageSourceSpan) {
-                        const sourceText = isFallback ?
-                            `Source: Local (Fallback)` :
-                            `Source: ${imageData.source === 'google-drive' ? 'Google Drive' : 'Local'}`;
-                        imageSourceSpan.textContent = sourceText;
-                        imageSourceSpan.className = `source-indicator ${isFallback ? 'fallback' : imageData.source}`;
-                    }
+                    // Try to load the image with our proxy
+                    GoogleDriveProxy.loadImage(src)
+                        .then(usableUrl => {
+                            // Successfully got a usable URL
+                            backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+                            backgroundContainer.classList.remove('loading', 'error');
+                            imageIdSpan.textContent = imageData.id;
 
-                    resolve(true);
-                };
+                            // Show image source
+                            if (appConfig.showImageSource && imageSourceSpan) {
+                                imageSourceSpan.textContent = `Source: Google Drive`;
+                                imageSourceSpan.className = `source-indicator google-drive`;
+                            }
 
-                img.onerror = () => {
-                    console.warn(`Failed to load image from ${src}${isRetry ? ' (retry attempt)' : ''}`);
-                    reject(new Error(`Failed to load image from ${isRetry ? 'retry' : 'primary'} source`));
-                };
+                            resolve(true);
+                        })
+                        .catch(error => {
+                            console.error(`All Google Drive loading methods failed: ${error.message}`);
+                            reject(error);
+                        });
+                } else {
+                    // Regular image loading for non-Google Drive images
+                    img.onload = () => {
+                        // Successfully loaded the image
+                        backgroundContainer.style.backgroundImage = `url(${src})`;
+                        backgroundContainer.classList.remove('loading', 'error');
+                        imageIdSpan.textContent = imageData.id;
 
-                img.src = src;
+                        // Show image source if configured
+                        if (appConfig.showImageSource && imageSourceSpan) {
+                            const sourceText = isFallback ?
+                                `Source: Local (Fallback)` :
+                                `Source: ${imageData.source === 'google-drive' ? 'Google Drive' : 'Local'}`;
+                            imageSourceSpan.textContent = sourceText;
+                            imageSourceSpan.className = `source-indicator ${isFallback ? 'fallback' : imageData.source}`;
+                        }
+
+                        resolve(true);
+                    };
+
+                    img.onerror = () => {
+                        console.warn(`Failed to load image from ${src}${isRetry ? ' (retry attempt)' : ''}`);
+                        reject(new Error(`Failed to load image from ${isRetry ? 'retry' : 'primary'} source`));
+                    };
+
+                    img.src = src;
+                }
             });
         }
 

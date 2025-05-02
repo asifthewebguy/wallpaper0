@@ -38,12 +38,14 @@ jobs:
       run: |
         cp github-pages-index.html index.html
         cp config.js config.js  # Copy config.js to root directory
+        # Make sure js directory exists
+        mkdir -p js
 
     - name: Commit and push changes
       run: |
         git config --global user.name 'GitHub Actions Bot'
         git config --global user.email 'actions@github.com'
-        git add api/ data/ index.html css/ config.js google-drive-mapping.json
+        git add api/ data/ index.html css/ js/ config.js google-drive-mapping.json
 
         # Determine commit message based on what triggered the workflow
         COMMIT_MSG="Auto-generate API files"
