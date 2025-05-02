@@ -182,5 +182,24 @@ fs.writeFileSync(
 </html>`
 );
 
+// Copy the Google Drive mapping file to the data directory if it exists
+if (fs.existsSync(driveMappingPath)) {
+    try {
+        // Create a copy of the mapping file without README and example entries
+        const cleanMapping = { ...driveMapping };
+
+        // Add a note about the file
+        cleanMapping.NOTE = "This file maps local image filenames to Google Drive file IDs.";
+
+        fs.writeFileSync(
+            path.join(dataDir, 'google-drive-mapping.json'),
+            JSON.stringify(cleanMapping, null, 2)
+        );
+        console.log(`Copied Google Drive mapping file to data directory.`);
+    } catch (error) {
+        console.error('Error copying Google Drive mapping file:', error);
+    }
+}
+
 console.log(`Generated image data for ${imageData.length} images.`);
 console.log(`Created API endpoints in the api directory.`);
