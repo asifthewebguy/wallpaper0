@@ -64,7 +64,41 @@ const config = {
 
   // Error handling
   maxRetryAttempts: 3,            // Number of times to retry loading an image
-  retryDelay: 1000                // Delay between retries in milliseconds
+  retryDelay: 1000,               // Delay between retries in milliseconds
+
+  // Image optimization settings
+  imageOptimization: {
+    enabled: true,                // Enable image optimization
+    inputDir: 'wp',               // Directory containing original images
+    outputDir: 'wp-optimized',    // Directory for optimized images
+    useOptimizedImages: true,     // Use optimized images in the application
+    createSizeDirectories: false, // Whether to create separate directories for each size
+    createFormatDirectories: false, // Whether to create separate directories for each format
+    convertToWebP: true,          // Convert images to WebP format
+    keepOriginal: true,           // Keep original size images
+    sizes: {
+      small: {
+        width: 640,               // Width in pixels
+        quality: 70               // Quality percentage
+      },
+      medium: {
+        width: 1280,
+        quality: 80
+      },
+      large: {
+        width: 1920,
+        quality: 90
+      },
+      original: {
+        quality: 85               // Quality for original size
+      }
+    },
+    formats: {
+      jpg: { quality: 85 },
+      png: { compressionLevel: 8 },
+      webp: { quality: 80 }
+    }
+  }
 };
 
 // Export for use in other files

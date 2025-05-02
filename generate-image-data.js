@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const ImageOptimizer = require('./image-optimizer');
 
 // Load configuration
 let config;
@@ -57,9 +58,67 @@ fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(apiImagesDir, { recursive: true });
 fs.mkdirSync(apiRandomDir, { recursive: true });
 
-// Read the wp directory
-const wpDir = path.join(__dirname, 'wp');
-const files = fs.readdirSync(wpDir);
+// Run image optimization if enabled
+let optimizedImages = [];
+if (config.imageOptimization && config.imageOptimization.enabled !== false) {
+    console.log('Running image optimization...');
+    const optimizer = new ImageOptimizer(config.imageOptimization);
+
+    // Run optimization synchronously to ensure it's complete before proceeding
+    try {
+        // Since optimizeAll returns a Promise, we need to use await
+        // But since we're not in an async function, we need to use a different approach
+        // We'll run the optimization and then continue with the script
+        optimizer.optimizeAll()
+            .then(results => {
+                optimizedImages = results;
+                console.log(`Optimization complete. Generated ${results.length} optimized images.`);
+
+                // Continue with the rest of the script
+                continueWithImageGeneration();
+            })
+            .catch(error => {
+                console.error('Error during image optimization:', error);
+
+                // Continue with the script even if optimization fails
+                continueWithImageGeneration();
+            });
+
+        // Return early since we'll continue in the callback
+        return;
+    } catch (error) {
+        console.error('Error setting up image optimization:', error);
+    }
+}
+
+// If we didn't run optimization or it failed to set up, continue with the script
+continueWithImageGeneration();
+
+// Function to continue with image generation after optimization
+function continueWithImageGeneration() {
+
+// Determine which directory to use for images
+const useOptimizedImages = config.imageOptimization &&
+                          config.imageOptimization.enabled !== false &&
+                          config.imageOptimization.useOptimizedImages !== false;
+
+const wpDir = path.join(__dirname, useOptimizedImages ?
+                        (config.imageOptimization.outputDir || 'wp-optimized') :
+                        'wp');
+
+console.log(`Using image directory: ${wpDir}`);
+
+// Read the image directory
+let files = [];
+try {
+    files = fs.readdirSync(wpDir);
+} catch (error) {
+    console.error(`Error reading directory ${wpDir}:`, error);
+    // Fallback to original wp directory if optimized directory doesn't exist
+    const fallbackDir = path.join(__dirname, 'wp');
+    console.log(`Falling back to original directory: ${fallbackDir}`);
+    files = fs.readdirSync(fallbackDir);
+}
 
 // Filter image files and create image data
 const imageFiles = files.filter(file => {
@@ -215,3 +274,4 @@ if (fs.existsSync(driveMappingPath)) {
 
 console.log(`Generated image data for ${imageData.length} images.`);
 console.log(`Created API endpoints in the api directory.`);
+} // End of continueWithImageGeneration function
