@@ -2,3 +2,11 @@ node_modules/
 .DS_Store
 .env
 *.log
+
+# Google Drive API credentials and tokens
+credentials.json
+token.json
+test-drive-mapping.json
+
+# Temporary files
+*.tmp

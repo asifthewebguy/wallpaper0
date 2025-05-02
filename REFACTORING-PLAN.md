@@ -9,6 +9,10 @@ This document outlines potential areas for refactoring that would yield signific
 - [x] Modify image data generation script to use Google Drive URLs
 - [x] Add fallback mechanism to local storage when Google Drive is unavailable
 - [x] Update GitHub Actions workflow to handle Google Drive-hosted images
+- [ ] Set up Google Cloud project and enable Google Drive API
+- [ ] Generate credentials.json file for Google Drive API
+- [ ] Test uploading images to Google Drive
+- [ ] Create actual mapping file with real Google Drive file IDs
 
 ## Image Loading and Optimization
 
