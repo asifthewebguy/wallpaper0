@@ -54,9 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // State variables
     let images = [];
     let currentIndex = 0;
-    let imageCache = {}; // Cache for image data
     let loadingImage = false; // Flag to prevent multiple simultaneous loads
     let retryCount = {}; // Track retry attempts for each image
+
+    // Initialize the image loader
+    const imageLoader = new ImageLoader(appConfig);
 
     // API endpoints
     const API = {
@@ -82,22 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch image data by ID
     async function fetchImageData(imageId) {
-        // Check if image data is in cache
-        if (imageCache[imageId]) {
-            return imageCache[imageId];
-        }
-
         try {
-            const response = await fetch(API.getImageById(imageId));
-            if (!response.ok) {
-                throw new Error(`Failed to fetch image data for ID: ${imageId}`);
-            }
-            const imageData = await response.json();
-
-            // Cache the image data
-            imageCache[imageId] = imageData;
-
-            return imageData;
+            // Use the image loader to load the image data
+            return await imageLoader.loadImage(imageId);
         } catch (error) {
             console.error(`Error fetching image data for ID: ${imageId}`, error);
             return null;
@@ -440,13 +429,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Preload adjacent images if configured
-        if (appConfig.preloadAdjacentImages && images.length > 1) {
-            const nextIndex = (currentIndex + 1) % images.length;
-            const prevIndex = (currentIndex - 1 + images.length) % images.length;
+        if (images.length > 1) {
+            // Update the current index in the image loader
+            imageLoader.setCurrentIndex(currentIndex);
 
-            // Preload next and previous images in the background
-            fetchImageData(images[nextIndex]);
-            fetchImageData(images[prevIndex]);
+            if (appConfig.lazyLoading && appConfig.lazyLoading.enabled) {
+                // Use the image loader to preload adjacent images with lazy loading
+                console.log('Using lazy loading for preloading adjacent images');
+                setTimeout(() => {
+                    imageLoader.preloadAdjacentImages(currentIndex, images);
+                }, appConfig.lazyLoading.preloadDelay || 300);
+            } else if (appConfig.preloadAdjacentImages) {
+                // Traditional preloading
+                const nextIndex = (currentIndex + 1) % images.length;
+                const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
+                // Preload next and previous images in the background
+                fetchImageData(images[nextIndex]);
+                fetchImageData(images[prevIndex]);
+            }
         }
     }
 

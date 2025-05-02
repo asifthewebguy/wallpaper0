@@ -15,7 +15,16 @@ const config = {
   // Performance settings
   preloadAdjacentImages: true,    // Preload next and previous images
   cacheImages: true,              // Cache image data in memory
-  lazyLoadImages: true,           // Only load images when needed
+
+  // Lazy loading settings
+  lazyLoading: {
+    enabled: true,                // Enable lazy loading
+    preloadThreshold: 2,          // Number of images to preload in each direction
+    preloadDelay: 300,            // Delay before preloading adjacent images (ms)
+    queueSize: 5,                 // Maximum number of images to keep in memory
+    prioritizeVisible: true,      // Prioritize loading of currently visible images
+    unloadThreshold: 10           // Unload images when they are this many positions away
+  },
 
   // Responsive image settings
   responsive: {
