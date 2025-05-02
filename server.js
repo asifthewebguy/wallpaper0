@@ -5,6 +5,25 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Security middleware to prevent access to sensitive files
+app.use((req, res, next) => {
+    const blockedFiles = [
+        '/credentials.json',
+        '/token.json',
+        '/google-drive-mapping.json',
+        '/upload-to-drive.js',
+        '/test-credentials.js',
+        '/test-drive-integration.js'
+    ];
+
+    // Check if the request is for a blocked file
+    if (blockedFiles.some(file => req.path.endsWith(file))) {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    next();
+});
+
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
@@ -13,7 +32,7 @@ app.get('/api/images', (req, res) => {
     try {
         const wpDir = path.join(__dirname, 'wp');
         const files = fs.readdirSync(wpDir);
-        
+
         // Filter out non-image files and get just the filenames without extensions
         const imageIds = files
             .filter(file => {
@@ -21,7 +40,7 @@ app.get('/api/images', (req, res) => {
                 return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
             })
             .map(file => path.basename(file));
-        
+
         res.json(imageIds);
     } catch (error) {
         console.error('Error reading image directory:', error);
@@ -35,14 +54,14 @@ app.get('/api/images/:id', (req, res) => {
         const imageId = req.params.id;
         const wpDir = path.join(__dirname, 'wp');
         const files = fs.readdirSync(wpDir);
-        
+
         // Find the file that matches the ID
         const imageFile = files.find(file => path.basename(file) === imageId);
-        
+
         if (!imageFile) {
             return res.status(404).json({ error: 'Image not found' });
         }
-        
+
         const imagePath = path.join(wpDir, imageFile);
         res.sendFile(imagePath);
     } catch (error) {
@@ -56,22 +75,22 @@ app.get('/api/random', (req, res) => {
     try {
         const wpDir = path.join(__dirname, 'wp');
         const files = fs.readdirSync(wpDir);
-        
+
         // Filter out non-image files
         const imageFiles = files.filter(file => {
             const ext = path.extname(file).toLowerCase();
             return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
         });
-        
+
         if (imageFiles.length === 0) {
             return res.status(404).json({ error: 'No images found' });
         }
-        
+
         // Select a random image
         const randomIndex = Math.floor(Math.random() * imageFiles.length);
         const randomImage = imageFiles[randomIndex];
         const randomImageId = path.basename(randomImage);
-        
+
         res.json({ id: randomImageId });
     } catch (error) {
         console.error('Error serving random image:', error);

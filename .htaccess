@@ -1,0 +1,29 @@
+# Protect sensitive files
+<FilesMatch "^(credentials\.json|token\.json|google-drive-mapping\.json|upload-to-drive\.js|test-credentials\.js|test-drive-integration\.js)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Disable directory browsing
+Options -Indexes
+
+# Protect against script execution in the uploads directory
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^wp/.*\.(php|pl|py|jsp|asp|htm|html|shtml|sh|cgi)$ - [F,L]
+</IfModule>
+
+# Add security headers
+<IfModule mod_headers.c>
+    # Protect against XSS attacks
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME-sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable Content Security Policy
+    Header set Content-Security-Policy "default-src 'self' https://drive.google.com; img-src 'self' https://drive.google.com data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+</IfModule>

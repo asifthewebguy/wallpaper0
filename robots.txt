@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /credentials.json
+Disallow: /token.json
+Disallow: /google-drive-mapping.json
+Disallow: /upload-to-drive.js
+Disallow: /test-credentials.js
+Disallow: /test-drive-integration.js
+Disallow: /GOOGLE-DRIVE-SETUP.md
+Disallow: /check-mapping.js

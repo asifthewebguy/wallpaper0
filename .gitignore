@@ -8,5 +8,8 @@ credentials.json
 token.json
 test-drive-mapping.json
 
+# Security files (uncomment if you want to exclude them from git)
+# .htaccess
+
 # Temporary files
 *.tmp
