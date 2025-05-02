@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0;url=../../wp/X1MCNBF72N.png">
+    <meta http-equiv="refresh" content="0;url=https://drive.google.com/uc?export=view&id=1o5VluSrIOgk-7Zg1-nRhL036gCg6Sx5h">
 </head>
 <body>
-    <p>Redirecting to image...</p>
+    <p>Redirecting to image on Google Drive...</p>
     <script>
-        window.location.href = "../../wp/X1MCNBF72N.png";
+        // Try Google Drive first
+        window.location.href = "https://drive.google.com/uc?export=view&id=1o5VluSrIOgk-7Zg1-nRhL036gCg6Sx5h";
+
+        // If Google Drive fails, fallback to local (handled by JS in the actual app)
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName.toLowerCase() === 'img') {
+                console.warn('Google Drive image failed to load, falling back to local');
+                window.location.href = "../../wp/X1MCNBF72N.png";
+            }
+        }, true);
     </script>
 </body>
 </html>
