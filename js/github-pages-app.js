@@ -123,29 +123,113 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // For Google Drive images, we need to handle CORS differently
                 if (src.includes('drive.google.com')) {
-                    // Use our custom Google Drive proxy
-                    console.log(`Using GoogleDriveProxy for image: ${src}`);
+                    // Check if GoogleDriveProxy is defined
+                    if (typeof GoogleDriveProxy !== 'undefined') {
+                        // Use our custom Google Drive proxy
+                        console.log(`Using GoogleDriveProxy for image: ${src}`);
 
-                    // Try to load the image with our proxy
-                    GoogleDriveProxy.loadImage(src)
-                        .then(usableUrl => {
-                            // Successfully got a usable URL
-                            backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+                        // Try to load the image with our proxy
+                        GoogleDriveProxy.loadImage(src)
+                            .then(usableUrl => {
+                                // Successfully got a usable URL
+                                backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+                                backgroundContainer.classList.remove('loading', 'error');
+                                imageIdSpan.textContent = imageData.id;
+
+                                // Show image source
+                                if (appConfig.showImageSource && imageSourceSpan) {
+                                    imageSourceSpan.textContent = `Source: Google Drive`;
+                                    imageSourceSpan.className = `source-indicator google-drive`;
+                                }
+
+                                resolve(true);
+                            })
+                            .catch(error => {
+                                console.error(`All Google Drive loading methods failed: ${error.message}`);
+                                // Try fallback to local
+                                if (imageData.localPath) {
+                                    console.log(`Trying fallback to local for ${imageId}`);
+                                    img.onload = () => {
+                                        backgroundContainer.style.backgroundImage = `url(${imageData.localPath})`;
+                                        backgroundContainer.classList.remove('loading', 'error');
+                                        imageIdSpan.textContent = imageData.id;
+
+                                        // Show image source
+                                        if (appConfig.showImageSource && imageSourceSpan) {
+                                            imageSourceSpan.textContent = `Source: Local (Fallback)`;
+                                            imageSourceSpan.className = `source-indicator fallback`;
+                                        }
+
+                                        resolve(true);
+                                    };
+
+                                    img.onerror = () => {
+                                        console.error(`Local fallback also failed`);
+                                        backgroundContainer.classList.remove('loading');
+                                        backgroundContainer.classList.add('error');
+                                        reject(new Error(`All image loading methods failed`));
+                                    };
+
+                                    img.src = imageData.localPath;
+                                } else {
+                                    reject(error);
+                                }
+                            });
+                    } else {
+                        // GoogleDriveProxy is not defined, try direct loading first
+                        console.warn('GoogleDriveProxy is not defined, trying direct loading');
+                        img.onload = () => {
+                            backgroundContainer.style.backgroundImage = `url(${src})`;
                             backgroundContainer.classList.remove('loading', 'error');
                             imageIdSpan.textContent = imageData.id;
 
                             // Show image source
                             if (appConfig.showImageSource && imageSourceSpan) {
-                                imageSourceSpan.textContent = `Source: Google Drive`;
+                                imageSourceSpan.textContent = `Source: Google Drive (Direct)`;
                                 imageSourceSpan.className = `source-indicator google-drive`;
                             }
 
                             resolve(true);
-                        })
-                        .catch(error => {
-                            console.error(`All Google Drive loading methods failed: ${error.message}`);
-                            reject(error);
-                        });
+                        };
+
+                        img.onerror = () => {
+                            console.warn(`Direct Google Drive URL failed, trying fallback`);
+                            // Try fallback to local
+                            if (imageData.localPath) {
+                                console.log(`Trying fallback to local for ${imageId}`);
+                                const fallbackImg = new Image();
+
+                                fallbackImg.onload = () => {
+                                    backgroundContainer.style.backgroundImage = `url(${imageData.localPath})`;
+                                    backgroundContainer.classList.remove('loading', 'error');
+                                    imageIdSpan.textContent = imageData.id;
+
+                                    // Show image source
+                                    if (appConfig.showImageSource && imageSourceSpan) {
+                                        imageSourceSpan.textContent = `Source: Local (Fallback)`;
+                                        imageSourceSpan.className = `source-indicator fallback`;
+                                    }
+
+                                    resolve(true);
+                                };
+
+                                fallbackImg.onerror = () => {
+                                    console.error(`Local fallback also failed`);
+                                    backgroundContainer.classList.remove('loading');
+                                    backgroundContainer.classList.add('error');
+                                    reject(new Error(`All image loading methods failed`));
+                                };
+
+                                fallbackImg.src = imageData.localPath;
+                            } else {
+                                backgroundContainer.classList.remove('loading');
+                                backgroundContainer.classList.add('error');
+                                reject(new Error(`No fallback available`));
+                            }
+                        };
+
+                        img.src = src;
+                    }
                 } else {
                     // Regular image loading for non-Google Drive images
                     img.onload = () => {
@@ -185,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (appConfig.fallbackToLocal && imageData.source === 'google-drive' && imageData.localPath) {
                 try {
                     console.log(`Trying fallback to local for ${imageId}`);
+                    console.log(error.message);
                     await tryLoadImage(imageData.localPath, false, true);
                 } catch (fallbackError) {
                     // Both primary and fallback failed

@@ -38,8 +38,10 @@ jobs:
       run: |
         cp github-pages-index.html index.html
         cp config.js config.js  # Copy config.js to root directory
-        # Make sure js directory exists
+        # Make sure js directory exists and copy js files
         mkdir -p js
+        cp js/proxy.js js/proxy.js
+        cp js/github-pages-app.js js/github-pages-app.js
 
     - name: Commit and push changes
       run: |
