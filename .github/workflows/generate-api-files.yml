@@ -47,8 +47,7 @@ jobs:
         # Create js directory
         mkdir -p js
 
-        # Copy js files
-        cp -v js/github-pages-app.js js/
+        # No need to copy js files as they're already in the js directory
 
         # Create a simple proxy.js file (using echo with multiple lines)
         echo 'window.GoogleDriveProxy = {
