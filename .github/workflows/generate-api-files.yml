@@ -55,7 +55,8 @@ jobs:
           echo "Using improved proxy implementation"
         else
           # Create an improved proxy.js file with better CORS handling
-          echo '/**
+          cat > js/proxy.js << 'EOL'
+/**
  * Improved Google Drive Image Proxy for GitHub Pages
  */
 window.GoogleDriveProxy = {
@@ -99,7 +100,8 @@ window.GoogleDriveProxy = {
       resolve(thumbnailUrl);
     });
   }
-};' > js/proxy.js
+};
+EOL
           echo "Created default proxy implementation with improved CORS handling"
         fi
 
