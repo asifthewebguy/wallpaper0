@@ -132,10 +132,11 @@ const imageData = imageFiles.map(file => {
     const fileType = path.extname(file).toLowerCase().substring(1);
 
     // Determine the image path based on Google Drive availability
-    let imagePath, imageSource;
+    let imagePath, imageSource, driveFileId;
 
     if (config.useGoogleDrive && driveId) {
         // Use Google Drive URL
+        driveFileId = driveId;
         imagePath = `${config.googleDriveBaseUrl}${driveId}`;
         imageSource = 'google-drive';
     } else {
@@ -149,7 +150,9 @@ const imageData = imageFiles.map(file => {
         path: imagePath,
         type: fileType,
         source: imageSource,
-        localPath: `${config.localImagePath}${file}` // Always include local path for fallback
+        driveFileId: driveFileId || null, // Include the Google Drive file ID if available
+        localPath: `${config.localImagePath}${file}`, // Always include local path for fallback
+        thumbnailUrl: driveFileId ? `https://drive.google.com/thumbnail?id=${driveFileId}&sz=w2000` : null // Add thumbnail URL for Google Drive images
     };
 });
 
@@ -178,27 +181,101 @@ imageData.forEach(image => {
         ? `<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0;url=${image.path}">
+    <title>Image: ${image.id}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .loading {
+            margin: 20px 0;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to image on Google Drive...</p>
-    <script>
-        // Try Google Drive first
-        window.location.href = "${image.path}";
+    <h1>Image: ${image.id}</h1>
+    <div class="loading">Loading image from Google Drive...</div>
+    <div class="error">Failed to load from Google Drive, trying local fallback...</div>
 
-        // If Google Drive fails, fallback to local (handled by JS in the actual app)
-        window.addEventListener('error', function(e) {
-            if (e.target.tagName.toLowerCase() === 'img') {
-                console.warn('Google Drive image failed to load, falling back to local');
-                window.location.href = "../../${image.localPath}";
+    <script>
+        // Function to try loading the image with multiple methods
+        async function loadImage() {
+            const methods = [
+                // Method 1: Try thumbnail API (most reliable for CORS)
+                "${image.thumbnailUrl || `https://drive.google.com/thumbnail?id=${image.driveFileId}&sz=w2000`}",
+                // Method 2: Try export API
+                "${image.path}",
+                // Method 3: Fallback to local
+                "../../${image.localPath}"
+            ];
+
+            let img = document.createElement('img');
+            let loaded = false;
+
+            // Try each method in sequence
+            for (let i = 0; i < methods.length; i++) {
+                const url = methods[i];
+                try {
+                    // Show appropriate message
+                    if (i === 2) {
+                        document.querySelector('.loading').style.display = 'none';
+                        document.querySelector('.error').style.display = 'block';
+                    }
+
+                    // Try to load the image
+                    await new Promise((resolve, reject) => {
+                        img = new Image();
+                        img.onload = () => {
+                            loaded = true;
+                            resolve();
+                        };
+                        img.onerror = () => reject(new Error('Failed to load image'));
+                        img.src = url;
+
+                        // Set a timeout to avoid hanging forever
+                        setTimeout(() => reject(new Error('Timeout')), 5000);
+                    });
+
+                    // If we get here, the image loaded successfully
+                    break;
+                } catch (error) {
+                    console.warn(\`Method \${i+1} failed: \${error.message}\`);
+                    // Continue to next method
+                }
             }
-        }, true);
+
+            // If any method succeeded, display the image
+            if (loaded) {
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('.error').style.display = 'none';
+                document.body.appendChild(img);
+            } else {
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('.error').textContent = 'All loading methods failed. Please try again later.';
+                document.querySelector('.error').style.display = 'block';
+            }
+        }
+
+        // Start loading the image
+        loadImage();
     </script>
 </body>
 </html>`
         : `<!DOCTYPE html>
 <html>
 <head>
+    <title>Image: ${image.id}</title>
     <meta http-equiv="refresh" content="0;url=../../${image.path}">
 </head>
 <body>
@@ -228,26 +305,76 @@ fs.writeFileSync(
 <html>
 <head>
     <title>Random Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        pre {
+            text-align: left;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to random image...</p>
+    <h1>Random Image</h1>
+    <p>Loading random image...</p>
+    <div id="result"></div>
+    <div id="buttons" style="display: none;">
+        <a href="#" id="viewButton" class="button">View Image</a>
+        <a href="#" id="anotherButton" class="button">Get Another Random Image</a>
+    </div>
+
     <script>
-        fetch('../images.json')
-            .then(response => response.json())
-            .then(images => {
-                const randomIndex = Math.floor(Math.random() * images.length);
-                const randomImage = images[randomIndex];
-                const result = { id: randomImage };
+        function getRandomImage() {
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('buttons').style.display = 'none';
 
-                // Display the result as JSON
-                document.body.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            fetch('../images.json')
+                .then(response => response.json())
+                .then(images => {
+                    const randomIndex = Math.floor(Math.random() * images.length);
+                    const randomImage = images[randomIndex];
+                    const result = { id: randomImage };
 
-                // You can uncomment the following line to redirect to the actual image
-                // window.location.href = '../images/' + randomImage + '.html';
-            })
-            .catch(error => {
-                document.body.innerHTML = '<p>Error: ' + error.message + '</p>';
-            });
+                    // Display the result as JSON
+                    document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+
+                    // Set up the view button
+                    const viewButton = document.getElementById('viewButton');
+                    viewButton.href = '../images/' + randomImage + '.html';
+
+                    // Set up the another button
+                    const anotherButton = document.getElementById('anotherButton');
+                    anotherButton.onclick = function(e) {
+                        e.preventDefault();
+                        getRandomImage();
+                    };
+
+                    // Show the buttons
+                    document.getElementById('buttons').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+                });
+        }
+
+        // Initial load
+        getRandomImage();
     </script>
 </body>
 </html>`

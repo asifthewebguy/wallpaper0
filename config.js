@@ -68,10 +68,10 @@ const config = {
 
   // Image optimization settings
   imageOptimization: {
-    enabled: true,                // Enable image optimization
+    enabled: false,               // Disable image optimization for now
     inputDir: 'wp',               // Directory containing original images
     outputDir: 'wp-optimized',    // Directory for optimized images
-    useOptimizedImages: true,     // Use optimized images in the application
+    useOptimizedImages: false,    // Use original images in the application
     createSizeDirectories: false, // Whether to create separate directories for each size
     createFormatDirectories: false, // Whether to create separate directories for each format
     convertToWebP: true,          // Convert images to WebP format

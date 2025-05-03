@@ -210,37 +210,146 @@ document.addEventListener('DOMContentLoaded', () => {
                                     loadingProgressBar.style.width = '80%';
                                 }
 
-                                // Successfully got a usable URL
-                                backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+                                // Create a test image to verify the URL works
+                                const testImg = new Image();
+                                testImg.crossOrigin = 'anonymous'; // Try with CORS enabled
 
-                                // Update loading progress
-                                if (appConfig.showLoadingIndicator && loadingProgressBar) {
-                                    loadingProgressBar.style.width = '100%';
+                                testImg.onload = () => {
+                                    console.log('Successfully loaded image from Google Drive');
 
-                                    // Hide loading indicators after a short delay
-                                    setTimeout(() => {
-                                        if (loadingText) loadingText.style.display = 'none';
-                                        if (loadingProgressBar) {
-                                            loadingProgressBar.style.transition = 'none';
-                                            loadingProgressBar.style.width = '0%';
-                                            setTimeout(() => {
-                                                loadingProgressBar.style.display = 'none';
-                                                loadingProgressBar.style.transition = 'width 0.3s ease-out';
-                                            }, 50);
+                                    // Successfully got a usable URL
+                                    backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+
+                                    // Update loading progress
+                                    if (appConfig.showLoadingIndicator && loadingProgressBar) {
+                                        loadingProgressBar.style.width = '100%';
+
+                                        // Hide loading indicators after a short delay
+                                        setTimeout(() => {
+                                            if (loadingText) loadingText.style.display = 'none';
+                                            if (loadingProgressBar) {
+                                                loadingProgressBar.style.transition = 'none';
+                                                loadingProgressBar.style.width = '0%';
+                                                setTimeout(() => {
+                                                    loadingProgressBar.style.display = 'none';
+                                                    loadingProgressBar.style.transition = 'width 0.3s ease-out';
+                                                }, 50);
+                                            }
+                                        }, 500);
+                                    }
+
+                                    backgroundContainer.classList.remove('loading', 'error');
+                                    imageIdSpan.textContent = imageData.id;
+
+                                    // Show image source
+                                    if (appConfig.showImageSource && imageSourceSpan) {
+                                        imageSourceSpan.textContent = `Source: Google Drive`;
+                                        imageSourceSpan.className = `source-indicator google-drive`;
+                                    }
+
+                                    resolve(true);
+                                };
+
+                                testImg.onerror = () => {
+                                    console.warn('Test image failed to load, trying direct application');
+
+                                    // Even if the test fails, try to use the URL directly
+                                    // Some browsers will block the test but allow the actual usage
+                                    try {
+                                        backgroundContainer.style.backgroundImage = `url(${usableUrl})`;
+                                        backgroundContainer.classList.remove('loading', 'error');
+                                        imageIdSpan.textContent = imageData.id;
+
+                                        // Show image source
+                                        if (appConfig.showImageSource && imageSourceSpan) {
+                                            imageSourceSpan.textContent = `Source: Google Drive`;
+                                            imageSourceSpan.className = `source-indicator google-drive`;
                                         }
-                                    }, 500);
-                                }
 
-                                backgroundContainer.classList.remove('loading', 'error');
-                                imageIdSpan.textContent = imageData.id;
+                                        // Update loading progress
+                                        if (appConfig.showLoadingIndicator && loadingProgressBar) {
+                                            loadingProgressBar.style.width = '100%';
 
-                                // Show image source
-                                if (appConfig.showImageSource && imageSourceSpan) {
-                                    imageSourceSpan.textContent = `Source: Google Drive`;
-                                    imageSourceSpan.className = `source-indicator google-drive`;
-                                }
+                                            // Hide loading indicators after a short delay
+                                            setTimeout(() => {
+                                                if (loadingText) loadingText.style.display = 'none';
+                                                if (loadingProgressBar) {
+                                                    loadingProgressBar.style.transition = 'none';
+                                                    loadingProgressBar.style.width = '0%';
+                                                    setTimeout(() => {
+                                                        loadingProgressBar.style.display = 'none';
+                                                        loadingProgressBar.style.transition = 'width 0.3s ease-out';
+                                                    }, 50);
+                                                }
+                                            }, 500);
+                                        }
 
-                                resolve(true);
+                                        // Wait a bit to see if the image loads
+                                        setTimeout(() => {
+                                            // Check if the background image is visible
+                                            const computedStyle = window.getComputedStyle(backgroundContainer);
+                                            if (computedStyle.backgroundImage && computedStyle.backgroundImage !== 'none') {
+                                                console.log('Background image appears to be loaded successfully');
+                                                resolve(true);
+                                            } else {
+                                                console.warn('Background image not visible, trying fallback');
+                                                tryFallback();
+                                            }
+                                        }, 1000);
+                                    } catch (e) {
+                                        console.error('Error setting background image:', e);
+                                        tryFallback();
+                                    }
+                                };
+
+                                // Function to try fallback to local image
+                                const tryFallback = () => {
+                                    // Try fallback to local
+                                    if (imageData.localPath) {
+                                        console.log(`Trying fallback to local for ${imageId}`);
+                                        const fallbackImg = new Image();
+
+                                        fallbackImg.onload = () => {
+                                            backgroundContainer.style.backgroundImage = `url(${imageData.localPath})`;
+                                            backgroundContainer.classList.remove('loading', 'error');
+                                            imageIdSpan.textContent = imageData.id;
+
+                                            // Show image source
+                                            if (appConfig.showImageSource && imageSourceSpan) {
+                                                imageSourceSpan.textContent = `Source: Local (Fallback)`;
+                                                imageSourceSpan.className = `source-indicator fallback`;
+                                            }
+
+                                            resolve(true);
+                                        };
+
+                                        fallbackImg.onerror = () => {
+                                            console.error(`Local fallback also failed`);
+
+                                            // Hide loading indicators
+                                            if (loadingText) loadingText.style.display = 'none';
+                                            if (loadingProgressBar) loadingProgressBar.style.display = 'none';
+
+                                            backgroundContainer.classList.remove('loading');
+                                            backgroundContainer.classList.add('error');
+                                            reject(new Error(`All image loading methods failed`));
+                                        };
+
+                                        fallbackImg.src = imageData.localPath;
+                                    } else {
+                                        console.error(`No local fallback available`);
+
+                                        // Hide loading indicators
+                                        if (loadingText) loadingText.style.display = 'none';
+                                        if (loadingProgressBar) loadingProgressBar.style.display = 'none';
+
+                                        backgroundContainer.classList.remove('loading');
+                                        backgroundContainer.classList.add('error');
+                                        reject(new Error(`All image loading methods failed`));
+                                    }
+                                };
+
+                                testImg.src = usableUrl;
                             })
                             .catch(error => {
                                 console.error(`All Google Drive loading methods failed: ${error.message}`);
