@@ -2,26 +2,76 @@
 <html>
 <head>
     <title>Random Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        pre {
+            text-align: left;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to random image...</p>
+    <h1>Random Image</h1>
+    <p>Loading random image...</p>
+    <div id="result"></div>
+    <div id="buttons" style="display: none;">
+        <a href="#" id="viewButton" class="button">View Image</a>
+        <a href="#" id="anotherButton" class="button">Get Another Random Image</a>
+    </div>
+
     <script>
-        fetch('../images.json')
-            .then(response => response.json())
-            .then(images => {
-                const randomIndex = Math.floor(Math.random() * images.length);
-                const randomImage = images[randomIndex];
-                const result = { id: randomImage };
+        function getRandomImage() {
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('buttons').style.display = 'none';
 
-                // Display the result as JSON
-                document.body.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            fetch('../images.json')
+                .then(response => response.json())
+                .then(images => {
+                    const randomIndex = Math.floor(Math.random() * images.length);
+                    const randomImage = images[randomIndex];
+                    const result = { id: randomImage };
 
-                // You can uncomment the following line to redirect to the actual image
-                // window.location.href = '../images/' + randomImage + '.html';
-            })
-            .catch(error => {
-                document.body.innerHTML = '<p>Error: ' + error.message + '</p>';
-            });
+                    // Display the result as JSON
+                    document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+
+                    // Set up the view button
+                    const viewButton = document.getElementById('viewButton');
+                    viewButton.href = '../images/' + randomImage + '.html';
+
+                    // Set up the another button
+                    const anotherButton = document.getElementById('anotherButton');
+                    anotherButton.onclick = function(e) {
+                        e.preventDefault();
+                        getRandomImage();
+                    };
+
+                    // Show the buttons
+                    document.getElementById('buttons').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('result').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+                });
+        }
+
+        // Initial load
+        getRandomImage();
     </script>
 </body>
 </html>

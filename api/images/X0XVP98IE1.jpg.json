@@ -3,5 +3,7 @@
   "path": "https://drive.google.com/uc?export=view&id=1BJJ-fr30ZOvA7ZYGeujupQB2zBdfuG58",
   "type": "jpg",
   "source": "google-drive",
-  "localPath": "wp/X0XVP98IE1.jpg"
+  "driveFileId": "1BJJ-fr30ZOvA7ZYGeujupQB2zBdfuG58",
+  "localPath": "wp/X0XVP98IE1.jpg",
+  "thumbnailUrl": "https://drive.google.com/thumbnail?id=1BJJ-fr30ZOvA7ZYGeujupQB2zBdfuG58&sz=w2000"
 }

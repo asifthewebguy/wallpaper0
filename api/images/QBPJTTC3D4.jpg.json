@@ -3,5 +3,7 @@
   "path": "https://drive.google.com/uc?export=view&id=1xyZ8chiQAOGhGMbPsxWTgYLCWOi8q4lP",
   "type": "jpg",
   "source": "google-drive",
-  "localPath": "wp/QBPJTTC3D4.jpg"
+  "driveFileId": "1xyZ8chiQAOGhGMbPsxWTgYLCWOi8q4lP",
+  "localPath": "wp/QBPJTTC3D4.jpg",
+  "thumbnailUrl": "https://drive.google.com/thumbnail?id=1xyZ8chiQAOGhGMbPsxWTgYLCWOi8q4lP&sz=w2000"
 }

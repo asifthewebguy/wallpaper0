@@ -1,21 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0;url=https://drive.google.com/uc?export=view&id=1lfNCa3xCq7asOAFpuxx-a7T3x5edqaqe">
+    <title>Image: 8U3YL4Q2C1.png</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .loading {
+            margin: 20px 0;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to image on Google Drive...</p>
-    <script>
-        // Try Google Drive first
-        window.location.href = "https://drive.google.com/uc?export=view&id=1lfNCa3xCq7asOAFpuxx-a7T3x5edqaqe";
+    <h1>Image: 8U3YL4Q2C1.png</h1>
+    <div class="loading">Loading image from Google Drive...</div>
+    <div class="error">Failed to load from Google Drive, trying local fallback...</div>
 
-        // If Google Drive fails, fallback to local (handled by JS in the actual app)
-        window.addEventListener('error', function(e) {
-            if (e.target.tagName.toLowerCase() === 'img') {
-                console.warn('Google Drive image failed to load, falling back to local');
-                window.location.href = "../../wp/8U3YL4Q2C1.png";
+    <script>
+        // Function to try loading the image with multiple methods
+        async function loadImage() {
+            const methods = [
+                // Method 1: Try thumbnail API (most reliable for CORS)
+                "https://drive.google.com/thumbnail?id=1lfNCa3xCq7asOAFpuxx-a7T3x5edqaqe&sz=w2000",
+                // Method 2: Try export API
+                "https://drive.google.com/uc?export=view&id=1lfNCa3xCq7asOAFpuxx-a7T3x5edqaqe",
+                // Method 3: Fallback to local
+                "../../wp/8U3YL4Q2C1.png"
+            ];
+
+            let img = document.createElement('img');
+            let loaded = false;
+
+            // Try each method in sequence
+            for (let i = 0; i < methods.length; i++) {
+                const url = methods[i];
+                try {
+                    // Show appropriate message
+                    if (i === 2) {
+                        document.querySelector('.loading').style.display = 'none';
+                        document.querySelector('.error').style.display = 'block';
+                    }
+
+                    // Try to load the image
+                    await new Promise((resolve, reject) => {
+                        img = new Image();
+                        img.onload = () => {
+                            loaded = true;
+                            resolve();
+                        };
+                        img.onerror = () => reject(new Error('Failed to load image'));
+                        img.src = url;
+
+                        // Set a timeout to avoid hanging forever
+                        setTimeout(() => reject(new Error('Timeout')), 5000);
+                    });
+
+                    // If we get here, the image loaded successfully
+                    break;
+                } catch (error) {
+                    console.warn(`Method ${i+1} failed: ${error.message}`);
+                    // Continue to next method
+                }
             }
-        }, true);
+
+            // If any method succeeded, display the image
+            if (loaded) {
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('.error').style.display = 'none';
+                document.body.appendChild(img);
+            } else {
+                document.querySelector('.loading').style.display = 'none';
+                document.querySelector('.error').textContent = 'All loading methods failed. Please try again later.';
+                document.querySelector('.error').style.display = 'block';
+            }
+        }
+
+        // Start loading the image
+        loadImage();
     </script>
 </body>
 </html>

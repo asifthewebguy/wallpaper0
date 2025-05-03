@@ -1,3 +1,6 @@
+/**
+ * Improved Google Drive Image Proxy for GitHub Pages
+ */
 window.GoogleDriveProxy = {
   extractFileId: function(url) {
     if (url.includes("export=view&id=")) {
@@ -17,8 +20,25 @@ window.GoogleDriveProxy = {
         reject(new Error("Invalid Google Drive URL"));
         return;
       }
+      
+      // Try multiple methods to load the image
+      this.tryLoadingMethods(fileId)
+        .then(url => resolve(url))
+        .catch(error => reject(error));
+    });
+  },
+  tryLoadingMethods: function(fileId) {
+    return new Promise((resolve, reject) => {
+      // Method 1: Use the thumbnail API (most reliable for CORS)
       const thumbnailUrl = "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w2000";
-      console.log("Using Google Drive thumbnail API:", thumbnailUrl);
+      
+      // Method 2: Use the uc export API
+      const exportUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
+      
+      console.log("Trying Google Drive thumbnail API:", thumbnailUrl);
+      
+      // Even if tests might fail, the thumbnail API is still our best bet
+      // Some browsers will block the test but allow the actual usage
       resolve(thumbnailUrl);
     });
   }

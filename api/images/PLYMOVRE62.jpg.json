@@ -3,5 +3,7 @@
   "path": "https://drive.google.com/uc?export=view&id=1s7c44B7HL5XB_hS0He7CKkR0Rg-grAGc",
   "type": "jpg",
   "source": "google-drive",
-  "localPath": "wp/PLYMOVRE62.jpg"
+  "driveFileId": "1s7c44B7HL5XB_hS0He7CKkR0Rg-grAGc",
+  "localPath": "wp/PLYMOVRE62.jpg",
+  "thumbnailUrl": "https://drive.google.com/thumbnail?id=1s7c44B7HL5XB_hS0He7CKkR0Rg-grAGc&sz=w2000"
 }

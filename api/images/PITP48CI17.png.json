@@ -3,5 +3,7 @@
   "path": "https://drive.google.com/uc?export=view&id=1Qsz32onG5EZ8TzG-iVMkyHWn9orvDj9l",
   "type": "png",
   "source": "google-drive",
-  "localPath": "wp/PITP48CI17.png"
+  "driveFileId": "1Qsz32onG5EZ8TzG-iVMkyHWn9orvDj9l",
+  "localPath": "wp/PITP48CI17.png",
+  "thumbnailUrl": "https://drive.google.com/thumbnail?id=1Qsz32onG5EZ8TzG-iVMkyHWn9orvDj9l&sz=w2000"
 }
