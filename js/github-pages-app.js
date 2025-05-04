@@ -44,11 +44,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add source indicator if configured
     let imageSourceSpan;
+    let desktopBgButton;
     if (appConfig.showImageSource) {
         imageSourceSpan = document.createElement('span');
         imageSourceSpan.id = 'image-source';
         imageSourceSpan.className = 'source-indicator';
         document.querySelector('.info-panel').appendChild(imageSourceSpan);
+
+        // Create "Set as Desktop Background" button
+        desktopBgButton = document.createElement('a');
+        desktopBgButton.id = 'desktop-bg-button';
+        desktopBgButton.className = 'desktop-bg-button';
+        desktopBgButton.textContent = 'Set as Desktop Background';
+        desktopBgButton.href = `wallpaper0-changer:loading`;
+        document.querySelector('.info-panel').appendChild(desktopBgButton);
     }
 
     // State variables
@@ -247,6 +256,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                         imageSourceSpan.className = `source-indicator google-drive`;
                                     }
 
+                                    // Update desktop background button
+                                    if (desktopBgButton) {
+                                        desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
+                                    }
+
                                     resolve(true);
                                 };
 
@@ -264,6 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                         if (appConfig.showImageSource && imageSourceSpan) {
                                             imageSourceSpan.textContent = `Source: Google Drive`;
                                             imageSourceSpan.className = `source-indicator google-drive`;
+                                        }
+
+                                        // Update desktop background button
+                                        if (desktopBgButton) {
+                                            desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
                                         }
 
                                         // Update loading progress
@@ -320,6 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                                 imageSourceSpan.className = `source-indicator fallback`;
                                             }
 
+                                            // Update desktop background button
+                                            if (desktopBgButton) {
+                                                desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
+                                            }
+
                                             resolve(true);
                                         };
 
@@ -367,6 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                             imageSourceSpan.className = `source-indicator fallback`;
                                         }
 
+                                        // Update desktop background button
+                                        if (desktopBgButton) {
+                                            desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
+                                        }
+
                                         resolve(true);
                                     };
 
@@ -401,6 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 imageSourceSpan.className = `source-indicator google-drive`;
                             }
 
+                            // Update desktop background button
+                            if (desktopBgButton) {
+                                desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
+                            }
+
                             resolve(true);
                         };
 
@@ -420,6 +454,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     if (appConfig.showImageSource && imageSourceSpan) {
                                         imageSourceSpan.textContent = `Source: Local (Fallback)`;
                                         imageSourceSpan.className = `source-indicator fallback`;
+                                    }
+
+                                    // Update desktop background button
+                                    if (desktopBgButton) {
+                                        desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
                                     }
 
                                     resolve(true);
@@ -489,6 +528,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 `Source: ${imageData.source === 'google-drive' ? 'Google Drive' : 'Local'}`;
                             imageSourceSpan.textContent = sourceText;
                             imageSourceSpan.className = `source-indicator ${isFallback ? 'fallback' : imageData.source}`;
+                        }
+
+                        // Update desktop background button
+                        if (desktopBgButton) {
+                            desktopBgButton.href = `wallpaper0-changer:${imageData.id}`;
                         }
 
                         resolve(true);
