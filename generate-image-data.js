@@ -168,6 +168,12 @@ fs.writeFileSync(
     JSON.stringify(imageFiles.map(file => path.basename(file)), null, 2)
 );
 
+// Create images-data.json in api directory with all image data
+fs.writeFileSync(
+    path.join(apiDir, 'images-data.json'),
+    JSON.stringify(imageData, null, 2)
+);
+
 // Create individual JSON files for each image in api/images directory
 imageData.forEach(image => {
     fs.writeFileSync(

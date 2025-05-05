@@ -68,7 +68,7 @@
 <body>
     <h1>Wallpaper API Documentation</h1>
     <p>This API provides access to the wallpaper images in the <code>/wp</code> folder.</p>
-    
+
     <div class="endpoint">
         <h2><span class="method get">GET</span> <a href="images.json">/api/images.json</a></h2>
         <p>Returns an array of all image IDs.</p>
@@ -79,7 +79,7 @@
   ...
 ]</code></pre>
     </div>
-    
+
     <div class="endpoint">
         <h2><span class="method get">GET</span> <a href="images/QZWZJ2WW2Y.png.json">/api/images/{id}.json</a></h2>
         <p>Returns information about a specific image by ID.</p>
@@ -103,7 +103,7 @@
   "type": "jpg"
 }</code></pre>
     </div>
-    
+
     <div class="endpoint">
         <h2><span class="method get">GET</span> <a href="images/QZWZJ2WW2Y.png.html">/api/images/{id}.html</a></h2>
         <p>Redirects to the actual image file.</p>
@@ -121,7 +121,7 @@
             </tr>
         </table>
     </div>
-    
+
     <div class="endpoint">
         <h2><span class="method get">GET</span> <a href="random/index.html">/api/random/index.html</a></h2>
         <p>Returns a random image ID.</p>
@@ -130,7 +130,25 @@
   "id": "image1.jpg"
 }</code></pre>
     </div>
-    
+
+    <div class="endpoint">
+        <h2><span class="method get">GET</span> <a href="images-data.json">/api/images-data.json</a></h2>
+        <p>Returns detailed information about all images, including Google Drive paths and thumbnails.</p>
+        <h3>Response</h3>
+        <pre><code>[
+  {
+    "id": "005TN27O78.png",
+    "path": "https://drive.google.com/uc?export=view&id=19jXH2CaqFYWF0yfStTxFKHSnRBVKPRbI",
+    "type": "png",
+    "source": "google-drive",
+    "driveFileId": "19jXH2CaqFYWF0yfStTxFKHSnRBVKPRbI",
+    "localPath": "wp/005TN27O78.png",
+    "thumbnailUrl": "https://drive.google.com/thumbnail?id=19jXH2CaqFYWF0yfStTxFKHSnRBVKPRbI&sz=w2000"
+  },
+  ...
+]</code></pre>
+    </div>
+
     <h2>Example Usage</h2>
     <p>Here's an example of how to use the API with JavaScript:</p>
     <pre><code>// Get all image IDs
@@ -146,8 +164,13 @@ fetch('/api/images/image1.jpg.json')
 // Get a random image
 fetch('/api/random/index.html')
   .then(response => response.json())
-  .then(randomImage => console.log(randomImage));</code></pre>
-    
+  .then(randomImage => console.log(randomImage));
+
+// Get detailed information about all images
+fetch('/api/images-data.json')
+  .then(response => response.json())
+  .then(imagesData => console.log(imagesData));</code></pre>
+
     <p><a href="../">Back to Wallpaper Viewer</a></p>
 </body>
 </html>

@@ -98,6 +98,27 @@ app.get('/api/random', (req, res) => {
     }
 });
 
+// API endpoint to get all images data
+app.get('/api/images-data', (req, res) => {
+    try {
+        const dataPath = path.join(__dirname, 'data', 'images.json');
+
+        // Check if the data file exists
+        if (!fs.existsSync(dataPath)) {
+            return res.status(404).json({ error: 'Images data file not found' });
+        }
+
+        // Read the images data file
+        const imagesData = fs.readFileSync(dataPath, 'utf8');
+
+        // Parse and send the JSON data
+        res.json(JSON.parse(imagesData));
+    } catch (error) {
+        console.error('Error serving images data:', error);
+        res.status(500).json({ error: 'Failed to serve images data' });
+    }
+});
+
 // Serve index.html for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
