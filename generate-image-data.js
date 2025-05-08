@@ -188,6 +188,15 @@ imageData.forEach(image => {
 <html>
 <head>
     <title>Image: ${image.id}</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NVGW21YYZ1');
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -282,6 +291,15 @@ imageData.forEach(image => {
 <html>
 <head>
     <title>Image: ${image.id}</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NVGW21YYZ1');
+    </script>
     <meta http-equiv="refresh" content="0;url=../../${image.path}">
 </head>
 <body>
@@ -311,6 +329,15 @@ fs.writeFileSync(
 <html>
 <head>
     <title>Random Image</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NVGW21YYZ1');
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
