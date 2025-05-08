@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wallpaper API Documentation</title>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <!-- Google Consent Mode initialization -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
+      // Default consent settings - denied by default for GDPR compliance
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'wait_for_update': 500
+      });
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <script>
+      gtag('js', new Date());
       gtag('config', 'G-NVGW21YYZ1');
     </script>
     <style>
@@ -181,5 +193,17 @@ fetch('/api/images-data.json')
   .then(imagesData => console.log(imagesData));</code></pre>
 
     <p><a href="../">Back to Wallpaper Viewer</a></p>
+
+    <!-- Load consent manager -->
+    <script src="../js/consent-manager.js"></script>
+
+    <script>
+        // Initialize consent manager when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.ConsentManager) {
+                window.ConsentManager.initializeConsentMode();
+            }
+        });
+    </script>
 </body>
 </html>

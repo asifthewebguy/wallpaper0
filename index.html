@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wallpaper Viewer</title>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <!-- Google Consent Mode initialization -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
+      // Default consent settings - denied by default for GDPR compliance
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'wait_for_update': 500
+      });
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVGW21YYZ1"></script>
+    <script>
+      gtag('js', new Date());
       gtag('config', 'G-NVGW21YYZ1');
     </script>
     <link rel="stylesheet" href="css/styles.css">
@@ -101,9 +113,82 @@
         }
     };
     </script>
+    <!-- Consent Banner -->
+    <div id="consent-banner">
+        <div class="consent-message">
+            <p>This website uses cookies and similar technologies to improve your experience and analyze traffic.
+            We also share information about your use of our site with our analytics partners.</p>
+            <p>You can choose which cookies you want to allow. Click on "Accept All" to consent to all cookies,
+            "Accept Necessary" for only essential cookies, or "Customize" to set your preferences.</p>
+        </div>
+        <div class="consent-buttons">
+            <button class="consent-button accept-all" onclick="ConsentManager.acceptAllConsent()">Accept All</button>
+            <button class="consent-button accept-necessary" onclick="ConsentManager.acceptNecessaryConsent()">Accept Necessary</button>
+            <button class="consent-button reject-all" onclick="ConsentManager.denyAllConsent()">Reject All</button>
+            <button class="consent-button settings" onclick="ConsentManager.showConsentSettings()">Customize</button>
+        </div>
+    </div>
+
+    <!-- Consent Settings Modal -->
+    <div id="consent-settings-modal">
+        <div class="consent-modal-content">
+            <div class="consent-modal-header">
+                <h2>Privacy Preferences</h2>
+                <button class="consent-close-button" onclick="ConsentManager.hideConsentSettings()">&times;</button>
+            </div>
+            <div class="consent-modal-body">
+                <div class="consent-option">
+                    <label>
+                        <input type="checkbox" id="consent-analytics" checked>
+                        Analytics Cookies
+                    </label>
+                    <p>These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.</p>
+                </div>
+                <div class="consent-option">
+                    <label>
+                        <input type="checkbox" id="consent-ad-storage">
+                        Advertising Cookies
+                    </label>
+                    <p>These cookies are used to make advertising messages more relevant to you. They perform functions like preventing the same ad from continuously reappearing.</p>
+                </div>
+                <div class="consent-option">
+                    <label>
+                        <input type="checkbox" id="consent-ad-user-data">
+                        User Data for Ads
+                    </label>
+                    <p>This allows us to use data about your browsing behavior to serve you more relevant ads.</p>
+                </div>
+                <div class="consent-option">
+                    <label>
+                        <input type="checkbox" id="consent-ad-personalization">
+                        Ad Personalization
+                    </label>
+                    <p>This allows us to personalize the ads you see based on your previous interactions.</p>
+                </div>
+            </div>
+            <div class="consent-modal-footer">
+                <button class="consent-button reject-all" onclick="ConsentManager.denyAllConsent()">Reject All</button>
+                <button class="consent-button accept-necessary" onclick="ConsentManager.acceptNecessaryConsent()">Accept Necessary</button>
+                <button class="consent-button accept-all" onclick="ConsentManager.acceptAllConsent()">Accept All</button>
+                <button class="consent-button settings" onclick="ConsentManager.saveConsentSettings()">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load consent manager -->
+    <script src="js/consent-manager.js"></script>
     <!-- Load image loader -->
     <script src="js/image-loader.js"></script>
     <!-- Load application -->
     <script src="js/github-pages-app.js"></script>
+
+    <script>
+        // Initialize consent manager when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.ConsentManager) {
+                window.ConsentManager.initializeConsentMode();
+            }
+        });
+    </script>
 </body>
 </html>
