@@ -655,4 +655,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize the application
     initialize();
+
+    // Help modal functionality
+    const helpButton = document.getElementById('help-button');
+    const helpModal = document.getElementById('help-modal');
+    const closeHelpModal = document.getElementById('close-help-modal');
+
+    if (helpButton && helpModal && closeHelpModal) {
+        helpButton.addEventListener('click', () => {
+            helpModal.classList.add('visible');
+        });
+
+        closeHelpModal.addEventListener('click', () => {
+            helpModal.classList.remove('visible');
+        });
+
+        // Close modal when clicking outside of it
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('visible');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && helpModal.classList.contains('visible')) {
+                helpModal.classList.remove('visible');
+            }
+        });
+    }
 });

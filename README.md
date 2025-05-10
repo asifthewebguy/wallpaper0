@@ -13,6 +13,7 @@ A simple web application that displays images from the `/wp` folder as fullscree
 - Google Drive integration for image hosting
 - Fallback to local images if Google Drive is unavailable
 - Loading indicators and error handling
+- "Set as Desktop Background" button with [wallpaper0-changer](https://github.com/asifthewebguy/wallpaper0-changer) integration
 
 ## API Endpoints
 
@@ -130,6 +131,27 @@ This repository includes a GitHub Action that automatically generates the API fi
 This ensures that the API always stays in sync with your images without requiring manual intervention.
 
 You can also manually trigger this workflow from the "Actions" tab in the GitHub repository.
+
+## Desktop Wallpaper Integration
+
+This application integrates with [wallpaper0-changer](https://github.com/asifthewebguy/wallpaper0-changer), a Windows application that allows you to set any image from this viewer as your desktop background with a single click.
+
+### Features
+
+- One-click "Set as Desktop Background" button on each image
+- Custom URL protocol handler (`wallpaper0-changer:`) for seamless integration
+- Automatically downloads and sets the selected image as your desktop wallpaper
+- Runs in the system tray with minimal interference
+
+### Installation
+
+1. Download the [latest release of wallpaper0-changer](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
+2. Run the `install.ps1` script with PowerShell
+3. Follow the on-screen instructions to complete the installation
+
+### Usage
+
+Once installed, simply click the "Set as Desktop Background" button on any image in the wallpaper viewer. The wallpaper0-changer application will automatically download the image and set it as your desktop background.
 
 ## License
 
